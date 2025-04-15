@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Form</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 20px auto; }
+    form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; }
+    input, select { width: calc(100% - 20px); padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .entry { border: 1px solid #e0e0e0; padding: 10px; margin-bottom: 10px; }
+    .conditional { display: none; margin-left: 20px; }
+    @media (max-width: 600px) { input, select { width: 100%; } }
+  </style>
+</head>
+<body>
+  <form id="survey-form">
+    <h2>Part 1 - Household Information</h2>
+    
+    <label>Surveyor Name: <input type="text" name="surveyor_name" required></label>
+    <label>Household ID: <input type="text" name="household_id" id="household_id" readonly></label>
+    <label>Submission Date: <input type="date" name="submission_date" id="submission_date" required></label>
+    <label>1. Ward No.: <input type="text" name="ward_no" required></label>
+    <label>2. TAZ No.: <input type="text" name="taz_no" required></label>
+    <label>3. Name of the Head of the Household: <input type="text" name="head_name" required></label>
+
+    <label>4. Address of the Household:</label>
+    <input type="text" id="address" name="address" placeholder="Click 'Get Location' to autofill" required>
+    <button type="button" onclick="getLocation()">Get Location</button>
+    <input type="text" id="latitude" name="latitude" placeholder="Latitude" readonly>
+    <input type="text" id="longitude" name="longitude" placeholder="Longitude" readonly>
+
+    <label>5. Telephone/ Mobile No.: <input type="tel" name="mobile"></label>
+    <label>6. Household Type:
+      <select name="household_type">
+        <option>Apartment</option>
+        <option>Independent House</option>
+        <option>Service or Shared Apartment</option>
+        <option>Informal Housing</option>
+      </select>
+    </label>
+
+    <label>7. House Ownership:
+      <select name="house_ownership">
+        <option>Owned</option>
+        <option>Rented</option>
+        <option>Employer Provided</option>
+      </select>
+    </label>
+
+    <label>8. No. of Rooms:
+      <select name="num_rooms">
+        <option>1 Room</option>
+        <option>1RK</option>
+        <option>1BHK</option>
+        <option>2BHK</option>
+        <option>3BHK</option>
+        <option>4BHK</option>
+        <option>5BHK</option>
+        <option>>5BHK</option>
+      </select>
+    </label>
+    <label>9. No. of Earners in Household: <input type="number" name="num_earners" min="0" required></label>
+    <label>10. Monthly Income (in Rs.):
+      <select name="income" required>
+        <option value="0-10000">0 - 10,000</option>
+        <option value="10001-20000">10,001 - 20,000</option>
+        <option value="20001-30000">20,001 - 30,000</option>
+        <option value="30001-50000">30,001 - 50,000</option>
+        <option value="50001-75000">50,001 - 75,000</option>
+        <option value="75001-100000">75,001 - 1,00,000</option>
+        <option value="100001-200000">1,00,001 - 2,00,000</option>
+        <option value=">200000">Above 2,00,000</option>
+      </select>
+    </label>
+
+    <label>11. No. of Vehicles Owned by Household:</label>
+    <div id="vehicles">
+      <div class="vehicle-entry">
+        <label>Vehicle Type:
+          <select name="veh_type[]">
+            <option value="Car">Car</option>
+            <option value="Two-Wheeler">Two-Wheeler</option>
+            <option value="Bicycle">Bicycle</option>
+            <option value="Auto-Rickshaw">Auto-Rickshaw</option>
+            <option value="None">None</option>
+          </select>
+        </label>
+        <label>Ownership Type:
+          <select name="ownership_type[]">
+            <option value="Owned">Owned</option>
+            <option value="Hired">Hired</option>
+          </select>
+        </label>
+        <label>Fuel Type:
+          <select name="fuel_type[]">
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Electric">Electric</option>
+            <option value="CNG">CNG</option>
+            <option value="None">None</option>
+          </select>
+        </label>
+        <label>Parking Type:
+          <select name="parking_type[]">
+            <option value="Private Space">Private Space</option>
+            <option value="On Street">On Street</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <button type="button" onclick="addVehicle()">+ Add Another Vehicle</button>
+
+    <label>16. Monthly Expenditure (Rs.):</label>
+    <label>Transport: <input type="number" name="exp_transport" min="0"></label>
+    <label>Housing: <input type="number" name="exp_housing" min="0"></label>
+    <label>Education: <input type="number" name="exp_education" min="0"></label>
+    <label>Food: <input type="number" name="exp_food" min="0"></label>
+    <label>Health: <input type="number" name="exp_health" min="0"></label>
+    <label>Others: <input type="number" name="exp_others" min="0"></label>
+
+    <label>17. Nearest Public Transport/IPT Station:
+      <select name="nearest_pt_station">
+        <option value="Bus Station">Bus Station</option>
+        <option value="Railway Station">Railway Station</option>
+        <option value="IPT Stand">IPT Stand</option>
+      </select>
+    </label>
+    <label>18. Distance to PT/IPT station (in km): <input type="number" step="0.01" name="pt_distance" min="0"></label>
+    <label>19. Walk Time (in minutes): <input type="number" name="walk_time" min="0"></label>
+    <label>20. Average Waiting Time (in minutes): <input type="number" name="waiting_time" min="0"></label>
+    <label>21. How Often Used in Week: <input type="text" name="weekly_usage"></label>
+    <label>22. Feedback:
+      <select name="pt_feedback">
+        <option value="Reliable">Reliable</option>
+        <option value="Safe">Safe</option>
+        <option value="Expensive">Expensive</option>
+      </select>
+    </label>
+    <label>23. Any Suggestion/Improvements: <textarea name="pt_suggestions"></textarea></label>
+
+    <hr>
+    <h2>Part 2 - Personal Level Information</h2>
+    <div id="members">
+      <div class="member-entry" data-member-id="M1">
+        <label>Member ID: <input type="text" name="member_id[]" readonly value="M1"></label>
+        <label>Relation with Head of the Family:
+          <select name="relation[]">
+            <option value="1">Self</option>
+            <option value="2">Wife/Husband</option>
+            <option value="3">Son/Daughter</option>
+            <option value="4">Father/Mother</option>
+            <option value="5">Brother/Sister</option>
+            <option value="6">Grandfather/Grandmother</option>
+            <option value="7">Others</option>
+          </select>
+        </label>
+        <label>Age: <input type="number" name="age[]" min="0"></label>
+        <label>Gender:
+          <select name="gender[]">
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+            <option value="3">Other (Specify)</option>
+          </select>
+        </label>
+        <label>Marital Status:
+          <select name="marital_status[]">
+            <option value="">Select</option>
+            <option value="Married">Married</option>
+            <option value="Unmarried">Unmarried</option>
+          </select>
+        </label>
+        <label>Education:
+          <select name="education[]">
+            <option value="1">Illiterate</option>
+            <option value="2">Pre-Primary</option>
+            <option value="3">Primary (5th Pass)</option>
+            <option value="4">Secondary (10th Pass)</option>
+            <option value="5">Higher Secondary (12th Pass)</option>
+            <option value="6">Technical Diploma</option>
+            <option value="7">Graduate</option>
+            <option value="8">Post Graduate & Above</option>
+            <option value="9">Other/Literate without Formal Education</option>
+          </select>
+        </label>
+        <label>Occupation/Type of Service:
+          <select name="occupation[]">
+            <option value="1">Employed (Full Time)</option>
+            <option value="2">Employed (Part Time)</option>
+            <option value="3">Business/Work Related</option>
+            <option value="4">Employers Business</option>
+            <option value="5">Daily Wages</option>
+            <option value="6">Student</option>
+            <option value="7">Home maker</option>
+            <option value="8">Retired</option>
+            <option value="9">Unemployed</option>
+            <option value="10">Resident Maid/Driver/Caretaker</option>
+            <option value="11">Others</option>
+          </select>
+        </label>
+        <label>Place of Employment/Education:
+          <select name="employment_place[]">
+            <option value="1">Residential</option>
+            <option value="2">Industry/Factory</option>
+            <option value="3">Warehouse</option>
+            <option value="4">Office/ Office Complex</option>
+            <option value="5">Film/Television/Media Industry</option>
+            <option value="6">Shop/Showroom/Mall</option>
+            <option value="7">Restaurant/Eating Place</option>
+            <option value="8">Hotel</option>
+            <option value="9">Entertainment/Tourism</option>
+            <option value="10">Place of Education (School/College etc.)</option>
+            <option value="11">Health Facility</option>
+            <option value="12">Agriculture</option>
+            <option value="13">Construction Site</option>
+            <option value="14">Varies day to day</option>
+            <option value="15">Others</option>
+          </select>
+        </label>
+        <label>Income per month (Rs.):
+          <select name="income_personal[]">
+            <option value="0">0</option>
+            <option value="1-2500">1 - 2,500</option>
+            <option value="2501-5000">2,501 - 5,000</option>
+            <option value="5001-7500">5,001 - 7,500</option>
+            <option value="7501-10000">7,501 - 10,000</option>
+            <option value="10001-15000">10,001 - 15,000</option>
+            <option value="15001-20000">15,001 - 20,000</option>
+            <option value="20001-25000">20,001 - 25,000</option>
+            <option value="25001-30000">25,001 - 30,000</option>
+            <option value="30001-40000">30,001 - 40,000</option>
+            <option value="40001-50000">40,001 - 50,000</option>
+            <option value=">50000">Above 50,000</option>
+          </select>
+        </label>
+        <label>Driving License Holder:
+          <select name="license[]">
+            <option value="1">No License</option>
+            <option value="2">Two Wheeler</option>
+            <option value="3">Car</option>
+            <option value="4">Both</option>
+            <option value="5">Others (Specify)</option>
+          </select>
+        </label>
+        <label>Rail/Bus Pass Holder:
+          <select name="travel_pass[]">
+            <option value="1">No Pass</option>
+            <option value="2">Rail pass</option>
+            <option value="3">Bus pass</option>
+            <option value="4">Others (Specify)</option>
+          </select>
+        </label>
+        <label>Cost of Travel Pass (Rs.): <input type="number" name="pass_cost[]" min="0"></label>
+        <label>Avg Monthly Travel Expenditure (Rs.): <input type="number" name="travel_expense[]" min="0"></label>
+        
+        <h3>Part 3 - Trip Information</h3>
+        <div class="trip-entries">
+          <div class="trip-entry">
+            <label>Trip ID: <input type="text" name="trip_id[]" readonly></label>
+            <label>Mode of Transport:
+              <select name="mode_of_transport[]" onchange="toggleConditionalFields(this)">
+                <option value="1">Walk</option>
+                <option value="2">Bicycle</option>
+                <option value="3">Auto Rickshaw</option>
+                <option value="4">Two Wheeler</option>
+                <option value="5">Car</option>
+                <option value="6">Taxi</option>
+                <option value="7">School Bus</option>
+                <option value="8">Bus</option>
+                <option value="9">Train</option>
+                <option value="10">App Based Two Wheeler</option>
+                <option value="11">App Based Taxi</option>
+                <option value="12">App Based Auto</option>
+              </select>
+            </label>
+            <label>Origin Name: <input type="text" name="origin_name[]"></label>
+            <label>Destination Name: <input type="text" name="destination_name[]"></label>
+            <label>Trip Start Time: <input type="time" name="start_time[]"></label>
+            <label>Trip End Time: <input type="time" name="end_time[]"></label>
+            <label>Travel Cost: <input type="number" name="travel_cost[]" min="0"></label>
+            <label>Travel Time: <input type="time" name="travel_time[]"></label>      
+            <label>Trip Purpose:
+              <select name="trip_purpose[]">
+                <option value="1">Work</option>
+                <option value="2">Education</option>
+                <option value="3">Shopping</option>
+                <option value="4">Health</option>
+                <option value="5">Leisure</option>
+                <option value="6">Other</option>
+              </select>
+            </label>
+            <div class="conditional-fields" style="display: none;">
+              <label>Number of Transfers:
+                <input type="number" name="num_transfers[]" min="0" max="5" onchange="updateTransferFields(this)">
+              </label>
+              <div class="transfer-entries"></div>
+            </div>
+          </div>
+        </div>
+        <button type="button" onclick="addTrip(this)">+ Add Another Trip</button>
+      </div>
+    </div>
+    <button type="button" onclick="addMember()">+ Add Another Member</button>
+    <button type="submit">Submit Survey</button>
+    <label>Export Data From: <input type="date" id="from_date"></label>
+    <label>To: <input type="date" id="to_date"></label>
+    <button type="button" onclick="downloadExcel()">Download and Share via WhatsApp</button>
+  </form>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQuv6CCeCRIl2gus7x0b7zWTNV3S1jObt5koVYI_aVKx6bqhWWZx6fp-OWwIto8Jqb4w/exec'; // Replace with Web app URL
+    const householdId = Date.now();
+    document.getElementById('household_id').value = `H${householdId}`;
+    document.getElementById('submission_date').value = new Date().toISOString().split('T')[0];
+    let memberIdCounter = 1;
+    const tripCounters = { 'M1': 1 };
+    document.querySelector('.trip-entries input[name="trip_id[]"]').value = `H${householdId}-M1-T1`;
+    if (!localStorage.getItem('surveyData')) localStorage.setItem('surveyData', JSON.stringify([]));
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async pos => {
+          document.getElementById('latitude').value = pos.coords.latitude;
+          document.getElementById('longitude').value = pos.coords.longitude;
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+            const data = await res.json();
+            document.getElementById('address').value = data.display_name || 'Not found';
+          } catch (e) {
+            alert('Address fetch failed.');
+          }
+        }, e => alert('Geolocation error: ' + e.message));
+      } else {
+        alert('Geolocation not supported.');
+      }
+    }
+
+    // Add Member
+    function addMember() {
+      const members = document.getElementById('members');
+      memberIdCounter++;
+      const newMemberId = `M${memberIdCounter}`;
+      tripCounters[newMemberId] = 1; // Initialize trip counter for new member
+      
+      const entry = document.createElement('div');
+      entry.className = 'member-entry';
+      entry.dataset.memberId = newMemberId;
+      const tripId = `H${householdId}-${newMemberId}-T1`;
+      entry.innerHTML = `
+        <label>Member ID: <input type="text" name="member_id[]" readonly value="${newMemberId}"></label>
+        <label>Relation with Head of the Family:
+          <select name="relation[]">
+            <option value="1">Self</option>
+            <option value="2">Wife/Husband</option>
+            <option value="3">Son/Daughter</option>
+            <option value="4">Father/Mother</option>
+            <option value="5">Brother/Sister</option>
+            <option value="6">Grandfather/Grandmother</option>
+            <option value="7">Others</option>
+          </select>
+        </label>
+        <label>Age: <input type="number" name="age[]" min="0"></label>
+        <label>Gender:
+          <select name="gender[]">
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+            <option value="3">Other (Specify)</option>
+          </select>
+        </label>
+        <label>Marital Status:
+          <select name="marital_status[]">
+            <option value="">Select</option>
+            <option value="Married">Married</option>
+            <option value="Unmarried">Unmarried</option>
+          </select>
+        </label>
+        <label>Education:
+          <select name="education[]">
+            <option value="1">Illiterate</option>
+            <option value="2">Pre-Primary</option>
+            <option value="3">Primary (5th Pass)</option>
+            <option value="4">Secondary (10th Pass)</option>
+            <option value="5">Higher Secondary (12th Pass)</option>
+            <option value="6">Technical Diploma</option>
+            <option value="7">Graduate</option>
+            <option value="8">Post Graduate & Above</option>
+            <option value="9">Other/Literate without Formal Education</option>
+          </select>
+        </label>
+        <label>Occupation/Type of Service:
+          <select name="occupation[]">
+            <option value="1">Employed (Full Time)</option>
+            <option value="2">Employed (Part Time)</option>
+            <option value="3">Business/Work Related</option>
+            <option value="4">Employers Business</option>
+            <option value="5">Daily Wages</option>
+            <option value="6">Student</option>
+            <option value="7">Home maker</option>
+            <option value="8">Retired</option>
+            <option value="9">Unemployed</option>
+            <option value="10">Resident Maid/Driver/Caretaker</option>
+            <option value="11">Others</option>
+          </select>
+        </label>
+        <label>Place of Employment/Education:
+          <select name="employment_place[]">
+            <option value="1">Residential</option>
+            <option value="2">Industry/Factory</option>
+            <option value="3">Warehouse</option>
+            <option value="4">Office/ Office Complex</option>
+            <option value="5">Film/Television/Media Industry</option>
+            <option value="6">Shop/Showroom/Mall</option>
+            <option value="7">Restaurant/Eating Place</option>
+            <option value="8">Hotel</option>
+            <option value="9">Entertainment/Tourism</option>
+            <option value="10">Place of Education (School/College etc.)</option>
+            <option value="11">Health Facility</option>
+            <option value="12">Agriculture</option>
+            <option value="13">Construction Site</option>
+            <option value="14">Varies day to day</option>
+            <option value="15">Others</option>
+          </select>
+        </label>
+        <label>Income per month (Rs.):
+          <select name="income_personal[]">
+            <option value="0">0</option>
+            <option value="1-2500">1 - 2,500</option>
+            <option value="2501-5000">2,501 - 5,000</option>
+            <option value="5001-7500">5,001 - 7,500</option>
+            <option value="7501-10000">7,501 - 10,000</option>
+            <option value="10001-15000">10,001 - 15,000</option>
+            <option value="15001-20000">15,001 - 20,000</option>
+            <option value="20001-25000">20,001 - 25,000</option>
+            <option value="25001-30000">25,001 - 30,000</option>
+            <option value="30001-40000">30,001 - 40,000</option>
+            <option value="40001-50000">40,001 - 50,000</option>
+            <option value=">50000">Above 50,000</option>
+          </select>
+        </label>
+        <label>Driving License Holder:
+          <select name="license[]">
+            <option value="1">No License</option>
+            <option value="2">Two Wheeler</option>
+            <option value="3">Car</option>
+            <option value="4">Both</option>
+            <option value="5">Others (Specify)</option>
+          </select>
+        </label>
+        <label>Rail/Bus Pass Holder:
+          <select name="travel_pass[]">
+            <option value="1">No Pass</option>
+            <option value="2">Rail pass</option>
+            <option value="3">Bus pass</option>
+            <option value="4">Others (Specify)</option>
+          </select>
+        </label>
+        <label>Cost of Travel Pass (Rs.): <input type="number" name="pass_cost[]" min="0"></label>
+        <label>Avg Monthly Travel Expenditure (Rs.): <input type="number" name="travel_expense[]" min="0"></label>
+        <h3>Part 3 - Trip Information</h3>
+        <div class="trip-entries">
+          <div class="trip-entry">
+            <label>Trip ID: <input type="text" name="trip_id[]" readonly value="${tripId}"></label>
+            <label>Mode of Transport:
+              <select name="mode_of_transport[]" onchange="toggleConditionalFields(this)">
+                <option value="1">Walk</option>
+                <option value="2">Bicycle</option>
+                <option value="3">Auto Rickshaw</option>
+                <option value="4">Two Wheeler</option>
+                <option value="5">Car</option>
+                <option value="6">Taxi</option>
+                <option value="7">School Bus</option>
+                <option value="8">Bus</option>
+                <option value="9">Train</option>
+                <option value="10">App Based Two Wheeler</option>
+                <option value="11">App Based Taxi</option>
+                <option value="12">App Based Auto</option>
+              </select>
+            </label>
+            <label>Origin Name: <input type="text" name="origin_name[]"></label>
+            <label>Destination Name: <input type="text" name="destination_name[]"></label>
+            <label>Trip Start Time: <input type="time" name="start_time[]"></label>
+            <label>Trip End Time: <input type="time" name="end_time[]"></label>
+            <label>Travel Cost: <input type="number" name="travel_cost[]" min="0"></label>
+            <label>Travel Time: <input type="time" name="travel_time[]"></label>      
+            <label>Trip Purpose:
+              <select name="trip_purpose[]">
+                <option value="1">Work</option>
+                <option value="2">Education</option>
+                <option value="3">Shopping</option>
+                <option value="4">Health</option>
+                <option value="5">Leisure</option>
+                <option value="6">Other</option>
+              </select>
+            </label>
+            <div class="conditional-fields" style="display: none;">
+              <label>Number of Transfers:
+                <input type="number" name="num_transfers[]" min="0" max="5" onchange="updateTransferFields(this)">
+              </label>
+              <div class="transfer-entries"></div>
+            </div>
+          </div>
+        </div>
+        <button type="button" onclick="addTrip(this)">+ Add Another Trip</button>
+      `;
+      members.appendChild(entry);
+    }
+
+    // Add Trip
+    function addTrip(button) {
+      const tripEntries = button.parentElement.querySelector('.trip-entries');
+      const memberEntry = button.closest('.member-entry');
+      const memberId = memberEntry.dataset.memberId;
+      tripCounters[memberId] = (tripCounters[memberId] || 1) + 1;
+      const tripId = `H${householdId}-${memberId}-T${tripCounters[memberId]}`;
+      const entry = tripEntries.querySelector('.trip-entry').cloneNode(true);
+      entry.querySelectorAll('input').forEach(input => input.value = '');
+      entry.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+      entry.querySelector('input[name="trip_id[]"]').value = tripId;
+      entry.querySelector('.conditional-fields').style.display = 'none';
+      entry.querySelector('.transfer-entries').innerHTML = '';
+      tripEntries.appendChild(entry);
+    }
+
+    function toggleTransfers(select) {
+      const conditional = select.closest('.entry').querySelector('.conditional');
+      conditional.style.display = select.value === '3' ? 'block' : 'none';
+      if (select.value !== '3') conditional.querySelector('.transfer-entries').innerHTML = '';
+    }
+
+    function updateTransfers(input) {
+      const num = parseInt(input.value) || 0;
+      const transfers = input.closest('.conditional').querySelector('.transfer-entries');
+      transfers.innerHTML = '';
+      for (let i = 0; i < num; i++) {
+        transfers.innerHTML += `
+          <div>
+            <label>Stop: <input type="text" name="transfer_stop_name_${i}[]"></label>
+            <label>Mode: <select name="transfer_mode_${i}[]">
+              <option>Walk</option><option>Bus</option>
+            </select></label>
+            <label>Cost: <input type="number" name="transfer_cost_${i}[]" min="0"></label>
+          </div>
+        `;
+      }
+    }
+
+    document.getElementById('survey-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {
+        household: {
+          household_id: formData.get('household_id'),
+          surveyor_name: formData.get('surveyor_name'),
+          submission_date: formData.get('submission_date'),
+          ward_no: formData.get('ward_no'),
+          taz_no: formData.get('taz_no'),
+          head_name: formData.get('head_name'),
+          address: formData.get('address'),
+          latitude: formData.get('latitude'),
+          longitude: formData.get('longitude'),
+          mobile: formData.get('mobile'),
+          household_type: formData.get('household_type'),
+          house_ownership: formData.get('house_ownership'),
+          num_rooms: formData.get('num_rooms'),
+          num_earners: formData.get('num_earners'),
+          income: formData.get('income')
+        },
+        vehicles: [],
+        members: [],
+        trips: [],
+        transfers: [],
+        surveyor_name: formData.get('surveyor_name'),
+        submission_date: formData.get('submission_date')
+      };
+
+      document.querySelectorAll('#vehicles .entry').forEach((v, i) => {
+        data.vehicles.push({
+          household_id: data.household.household_id,
+          vehicle_number: i + 1,
+          veh_type: v.querySelector(`select[name="veh_type[]"]`).value,
+          ownership_type: v.querySelector(`select[name="ownership_type[]"]`).value,
+          fuel_type: v.querySelector(`select[name="fuel_type[]"]`).value,
+          parking_type: v.querySelector(`select[name="parking_type[]"]`).value
+        });
+      });
+
+      let tripIndex = 0;
+      document.querySelectorAll('#members .entry').forEach((m, mIdx) => {
+        const memberId = formData.getAll('member_id[]')[mIdx];
+        data.members.push({
+          household_id: data.household.household_id,
+          member_id: memberId,
+          relation: formData.getAll('relation[]')[mIdx],
+          age: formData.getAll('age[]')[mIdx],
+          gender: formData.getAll('gender[]')[mIdx],
+          marital_status: formData.getAll('marital_status[]')[mIdx],
+          education: formData.getAll('education[]')[mIdx],
+          occupation: formData.getAll('occupation[]')[mIdx],
+          income_personal: formData.getAll('income_personal[]')[mIdx]
+        });
+
+        m.querySelectorAll('.trip-entries .entry').forEach(t => {
+          const globalIdx = tripIndex++;
+          const numTransfers = parseInt(formData.getAll('num_transfers[]')[globalIdx]) || 0;
+          data.trips.push({
+            household_id: data.household.household_id,
+            member_id: memberId,
+            trip_id: formData.getAll('trip_id[]')[globalIdx],
+            mode_of_transport: formData.getAll('mode_of_transport[]')[globalIdx],
+            origin_name: formData.getAll('origin_name[]')[globalIdx],
+            destination_name: formData.getAll('destination_name[]')[globalIdx],
+            travel_cost: formData.getAll('travel_cost[]')[globalIdx],
+            trip_purpose: formData.getAll('trip_purpose[]')[globalIdx]
+          });
+
+          for (let i = 0; i < numTransfers; i++) {
+            data.transfers.push({
+              household_id: data.household.household_id,
+              member_id: memberId,
+              trip_id: formData.getAll('trip_id[]')[globalIdx],
+              transfer_number: i + 1,
+              stop_name: formData.getAll(`transfer_stop_name_${i}[]`)[globalIdx] || '',
+              mode: formData.getAll(`transfer_mode_${i}[]`)[globalIdx] || '',
+              cost: formData.getAll(`transfer_cost_${i}[]`)[globalIdx] || ''
+            });
+          }
+        });
+      });
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (res.ok) {
+          localStorage.setItem('surveyData', JSON.stringify([...JSON.parse(localStorage.getItem('surveyData')), data]));
+          alert('Submitted successfully!');
+          e.target.reset();
+          document.getElementById('household_id').value = `H${Date.now()}`;
+          document.getElementById('submission_date').value = new Date().toISOString().split('T')[0];
+          document.getElementById('vehicles').innerHTML = document.querySelector('#vehicles .entry').outerHTML;
+          document.getElementById('members').innerHTML = document.querySelector('#members .entry').outerHTML;
+          document.querySelector('.trip-entries input[name="trip_id[]"]').value = `H${Date.now()}-M1-T1`;
+          memberIdCounter = 1;
+          tripCounters['M1'] = 1;
+        } else {
+          throw new Error('Submission failed.');
+        }
+      } catch (e) {
+        localStorage.setItem('surveyData', JSON.stringify([...JSON.parse(localStorage.getItem('surveyData')), data]));
+        alert('Error: ' + e.message + '. Saved locally.');
+      }
+    });
+
+    function downloadExcel() {
+      const from = document.getElementById('from_date').value;
+      const to = document.getElementById('to_date').value;
+      if (!from || !to) return alert('Select dates.');
+      if (from > to) return alert('Invalid date range.');
+      const data = JSON.parse(localStorage.getItem('surveyData')).filter(
+         => d.submission_date >= from && d.submission_date <= to);
+      if (!data.length) return alert('No data.');
+
+      const households = data.map(d => d.household);
+      const vehicles = data.flatMap(d => d.vehicles.map(v => ({ ...v, surveyor_name: d.surveyor_name, submission_date: d.submission_date })));
+      const members = data.flatMap(d => d.members.map(m => ({ ...m, surveyor_name: d.survey_name, submission_date: d.submission_date })));
+      const trips = data.flatMap(d => d.trips.map(t => ({ ...t, surveyor_name: d.surveyor_name, submission_date: d.submission_date })));
+      const transfers = data.flatMap(d => d.transfers.map(t => ({ ...t, surveyor_name: d.surveyor_name, submission_date: d.submission_date })));
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(households), 'Households');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(vehicles), 'Vehicles');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(members), 'Members');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(trips), 'Trips');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(transfers), 'Transfers');
+      XLSX.writeFile(wb, `Survey_${from}_to_${to}.xlsx`);
+    }
+  </script>
+</body>
+</html>
